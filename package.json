@@ -1,0 +1,42 @@
+{
+  "name": "secret-scrub",
+  "version": "1.0.0",
+  "description": "Ultra-fast, zero-leak pre-commit secret scanner with entropy analysis and multi-provider credential detection.",
+  "type": "module",
+  "main": "src/index.js",
+  "bin": {
+    "secret-scrub": "./bin/secret-scrub.js"
+  },
+  "scripts": {
+    "start": "node ./bin/secret-scrub.js",
+    "test": "node --test tests/*.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mahdyarmonfared/secret-scrub.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mahdyarmonfared/secret-scrub/issues"
+  },
+  "homepage": "https://github.com/mahdyarmonfared/secret-scrub#readme",
+  "keywords": [
+    "security",
+    "secret-scanner",
+    "pre-commit",
+    "git-hook",
+    "entropy",
+    "credentials",
+    "api-keys",
+    "cli",
+    "nodejs",
+    "developer-tools"
+  ],
+  "author": "Mahdyar Monfared (https://github.com/mahdyarmonfared)",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "cli-table3": "^0.6.5",
+    "commander": "^13.1.0",
+    "ora": "^8.2.0"
+  }
+}
