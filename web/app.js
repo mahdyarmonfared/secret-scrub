@@ -415,3 +415,10 @@ dropOverlay.addEventListener('drop', (e) => {
 
 // Initial scan
 runScan();
+
+// Auto-trigger for URL query parameters (e.g. for screenshots)
+const params = new URLSearchParams(window.location.search);
+if (params.has('demo')) {
+  setTimeout(() => sampleKeysBtn?.click(), 100);
+}
+
