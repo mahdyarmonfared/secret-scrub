@@ -162,14 +162,18 @@ export function createCli() {
       console.log(chalk.gray(`\n Total active signatures: ${RULES.length}\n`));
     });
 
-  // Command: web
+  // Command: web [port]
   program
-    .command('web')
+    .command('web [port]')
     .description('Launch the browser-based SecretScrub Security Playground locally')
     .option('-p, --port <number>', 'Server listening port', (v) => parseInt(v, 10), 3000)
-    .action(async (options) => {
-      await startWebServer({ port: options.port });
+    .action(async (portArg, options) => {
+      const port = portArg ? parseInt(portArg, 10) : (options.port || 3000);
+      await startWebServer({ port });
     });
+
+  program
+    .option('--web [port]', 'Launch the browser-based SecretScrub Security Playground locally');
 
   return program;
 }
