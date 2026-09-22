@@ -16,6 +16,7 @@ Leaking API keys or private keys into public GitHub repositories is an instant s
 - 🔍 **18+ High-Fidelity Signatures**: Pinpoint AWS IAM keys, OpenAI & Anthropic tokens, GitHub PATs, Stripe live credentials, Slack/Discord webhooks, Database connection strings, and Private Key blocks (`RSA`, `OPENSSH`, `EC`).
 - 🎲 **Shannon Entropy Analysis**: Heuristic evaluation ($H(X) \ge 4.2$) flags unstructured high-entropy strings and secret assignments even when specific regex patterns don't match.
 - 🪝 **One-Click Pre-Commit Hook**: Install a native `.git/hooks/pre-commit` guard with a single command (`secret-scrub hook install`) to reject leaks at `git commit` time.
+- 🌐 **Interactive Web Security Playground (`--web`)**: Drag-and-drop file inspection and live paste testing with real-time entropy calculation, sample leak generator, and zero data transmission (100% client-side).
 - ⚡ **Lightning Fast Git Staged Mode**: `--staged` inspects only staged diff files in milliseconds without crawling irrelevant directories.
 - 🎭 **Zero-Leak Redaction**: Discovered secrets are masked in reports (`AKIA12••••••••CDEF`), preventing terminal logs from becoming leakage vectors.
 - 🤖 **CI/CD Native**: Standardized exit codes (`0` clean, `1` secrets detected) and machine-readable `--json` output for automated GitHub Actions and GitLab CI gates.
@@ -84,7 +85,9 @@ secret-scrub hook install
 ### 3. Launch Interactive Web Security Playground
 
 ```bash
-# Launch client-side browser playground locally
+# Launch client-side browser playground locally (supports both commands)
+npx secret-scrub --web
+# or
 npx secret-scrub web
 ```
 
