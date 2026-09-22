@@ -60,36 +60,37 @@ Leaking API keys or private keys into public GitHub repositories is an instant s
 
 ## 🚀 Quick Start
 
-### 1. Run Instantly via `npx` (No installation needed)
+### Installation & Global Setup
 
 ```bash
-# Scan current repository
-npx secret-scrub scan
+# 1. Clone the repository
+git clone https://github.com/mahdyarmonfared/secret-scrub.git
+cd secret-scrub
+
+# 2. Install dependencies
+npm install
+
+# 3. Link globally (so you can use `secret-scrub` anywhere in your terminal)
+npm link
+```
+
+### Running SecretScrub
+
+```bash
+# Scan current repository for credential leaks
+secret-scrub scan
 
 # Scan only Git staged files (instant pre-commit check)
-npx secret-scrub scan --staged
-```
+secret-scrub scan --staged
 
-### 2. Install Globally
-
-```bash
-npm install -g secret-scrub
-
-# Scan any path or directory
-secret-scrub scan ./src
-
-# Install git pre-commit hook in your project
+# Install native Git pre-commit hook in your project
 secret-scrub hook install
+
+# Launch client-side browser playground locally
+secret-scrub --web
 ```
 
-### 3. Launch Interactive Web Security Playground
-
-```bash
-# Launch client-side browser playground locally (supports both commands)
-npx secret-scrub --web
-# or
-npx secret-scrub web
-```
+> 💡 **Tip:** You can also run it directly inside the repo without linking using `node bin/secret-scrub.js [options]`.
 
 ### 4. Add to Your Project (`devDependencies`)
 
