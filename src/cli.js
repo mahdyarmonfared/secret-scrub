@@ -7,6 +7,7 @@ import { scanGitStaged, installPreCommitHook, uninstallPreCommitHook } from './g
 import { formatTerminalReport, formatJsonReport } from './reporter.js';
 import { RULES, SEVERITY } from './rules.js';
 import { getSeverityWeight, SEVERITY_WEIGHTS } from './utils.js';
+import { startWebServer } from './server.js';
 
 export function createCli() {
   const program = new Command();
@@ -161,5 +162,15 @@ export function createCli() {
       console.log(chalk.gray(`\n Total active signatures: ${RULES.length}\n`));
     });
 
+  // Command: web
+  program
+    .command('web')
+    .description('Launch the browser-based SecretScrub Security Playground locally')
+    .option('-p, --port <number>', 'Server listening port', (v) => parseInt(v, 10), 3000)
+    .action(async (options) => {
+      await startWebServer({ port: options.port });
+    });
+
   return program;
 }
+

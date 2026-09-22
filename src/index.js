@@ -6,3 +6,5 @@ export { formatTerminalReport, formatJsonReport } from './reporter.js';
 export { redactSecret, isBinaryBuffer } from './utils.js';
 export { RULES, SEVERITY } from './rules.js';
 export { createCli } from './cli.js';
+export { startWebServer } from './server.js';
+

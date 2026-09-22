@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SecretScrub — Web Security Playground & Entropy Inspector</title>
+  <meta name="description" content="Real-time client-side secret scanner and Shannon entropy calculator. Detect API keys, tokens, and credentials in your browser.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+</head>
+<body>
+  <div class="ambient-glow"></div>
+
+  <header class="header">
+    <div class="brand">
+      <span class="brand-icon">🛡️</span>
+      <div>
+        <h1 class="brand-title">SecretScrub</h1>
+        <p class="brand-tagline">Secret Detection Playground & Shannon Entropy Inspector</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="privacy-badge">🔒 100% Client-Side • Zero Leaks</span>
+      <a href="https://github.com/mahdyarmonfared/secret-scrub" target="_blank" rel="noopener" class="gh-link">
+        <svg height="18" viewBox="0 0 16 16" width="18" fill="currentColor">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+        GitHub
+      </a>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Quick Demos & Dropzone bar -->
+    <div class="toolbar">
+      <div class="demo-buttons">
+        <span class="toolbar-label">Load Samples:</span>
+        <button type="button" class="sample-btn" id="sampleEnvBtn">📄 Leaked .env</button>
+        <button type="button" class="sample-btn" id="sampleKeysBtn">🔑 API Keys & Stripe</button>
+        <button type="button" class="sample-btn" id="sampleCleanBtn">✅ Clean Code</button>
+      </div>
+
+      <div class="toolbar-actions">
+        <label class="toggle-control">
+          <input type="checkbox" id="entropyToggle" checked>
+          <span>Enable Shannon Entropy ($H(X) \ge 4.2$)</span>
+        </label>
+        <button type="button" class="clear-btn" id="clearBtn">Clear</button>
+      </div>
+    </div>
+
+    <!-- Main Workspace -->
+    <div class="workspace-grid">
+      <!-- Input Panel -->
+      <section class="panel editor-panel">
+        <div class="panel-header">
+          <span class="panel-title">📝 Code & Config Input</span>
+          <span class="char-count" id="charCount">0 lines</span>
+        </div>
+        <div class="editor-container" id="editorContainer">
+          <textarea id="codeInput" class="code-textarea" placeholder="Paste your .env, configuration, or code snippet here to inspect for exposed credentials...&#10;&#10;Or drag and drop any file directly into this area." spellcheck="false"></textarea>
+          <div class="drop-overlay hidden" id="dropOverlay">
+            <span>📥 Drop file here to inspect</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Analysis Results Panel -->
+      <section class="panel results-panel">
+        <div class="panel-header">
+          <span class="panel-title">🔍 Security Findings</span>
+          <span class="findings-badge badge-clean" id="findingsBadge">Clean</span>
+        </div>
+
+        <div class="status-card" id="statusCard">
+          <div class="status-icon" id="statusIcon">🛡️</div>
+          <div class="status-details">
+            <h3 class="status-heading" id="statusHeading">No Secrets Detected</h3>
+            <p class="status-desc" id="statusDesc">Paste credentials or configuration code above to evaluate patterns and calculate Shannon entropy in real-time.</p>
+          </div>
+        </div>
+
+        <!-- Findings List -->
+        <div class="findings-list" id="findingsList">
+          <!-- Dynamically populated cards -->
+        </div>
+
+        <!-- Panel Footer Actions -->
+        <div class="panel-footer-actions hidden" id="panelActions">
+          <button type="button" class="btn btn-action" id="sanitizeBtn">
+            ✂️ Sanitize & Copy Redacted Code
+          </button>
+          <button type="button" class="btn btn-outline" id="exportJsonBtn">
+            💾 Export JSON
+          </button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-content">
+      <p>Built with 🛡️ by <a href="https://github.com/mahdyarmonfared" target="_blank" rel="noopener">Mahdyar Monfared</a>. Open-source under MIT License.</p>
+      <p class="terminal-note">Prefer the terminal? Run <code>npx secret-scrub scan .</code> or <code>secret-scrub hook install</code></p>
+    </div>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

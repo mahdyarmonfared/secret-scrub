@@ -81,7 +81,14 @@ secret-scrub scan ./src
 secret-scrub hook install
 ```
 
-### 3. Add to Your Project (`devDependencies`)
+### 3. Launch Interactive Web Security Playground
+
+```bash
+# Launch client-side browser playground locally
+npx secret-scrub web
+```
+
+### 4. Add to Your Project (`devDependencies`)
 
 ```bash
 npm install --save-dev secret-scrub
