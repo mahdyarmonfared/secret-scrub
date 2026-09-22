@@ -13,7 +13,19 @@
 
   <header class="header">
     <div class="brand">
-      <span class="brand-icon">🛡️</span>
+      <div class="brand-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+          <defs>
+            <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#f43f5e"/>
+              <stop offset="100%" stop-color="#fb7185"/>
+            </linearGradient>
+          </defs>
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="url(#shieldGrad)" stroke-width="1.8" fill="rgba(244, 63, 94, 0.15)" stroke-linejoin="round"/>
+          <path d="M12 8v4" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="12" cy="15" r="1" fill="#fff"/>
+        </svg>
+      </div>
       <div>
         <h1 class="brand-title">SecretScrub</h1>
         <p class="brand-tagline">Secret Detection Playground & Shannon Entropy Inspector</p>
