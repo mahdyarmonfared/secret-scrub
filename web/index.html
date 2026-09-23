@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>SecretScrub — Web Security Playground & Entropy Inspector</title>
   <meta name="description" content="Real-time client-side secret scanner and Shannon entropy calculator. Detect API keys, tokens, and credentials in your browser.">
   <link rel="stylesheet" href="style.css">
@@ -32,6 +32,9 @@
       </div>
     </div>
     <div class="header-right">
+      <button type="button" class="header-btn" id="openRulesBtn" title="View all 18+ detection rules">
+        📋 18+ Signatures
+      </button>
       <span class="privacy-badge">🔒 100% Client-Side • Zero Leaks</span>
       <a href="https://github.com/mahdyarmonfared/secret-scrub" target="_blank" rel="noopener" class="gh-link">
         <svg height="18" viewBox="0 0 16 16" width="18" fill="currentColor">
@@ -53,9 +56,11 @@
       </div>
 
       <div class="toolbar-actions">
+        <input type="file" id="filePicker" class="hidden-file-input">
+        <label for="filePicker" class="file-picker-btn" id="filePickerLabel">📁 Open File</label>
         <label class="toggle-control">
           <input type="checkbox" id="entropyToggle" checked>
-          <span>Enable Shannon Entropy (H(X) ≥ 4.2)</span>
+          <span>Shannon Entropy (H(X) ≥ 4.2)</span>
         </label>
         <button type="button" class="clear-btn" id="clearBtn">Clear</button>
       </div>
@@ -80,8 +85,17 @@
       <!-- Analysis Results Panel -->
       <section class="panel results-panel">
         <div class="panel-header">
-          <span class="panel-title">🔍 Security Findings</span>
-          <span class="findings-badge badge-clean" id="findingsBadge">Clean</span>
+          <div class="panel-header-left">
+            <span class="panel-title">🔍 Security Findings</span>
+            <span class="findings-badge badge-clean" id="findingsBadge">Clean</span>
+          </div>
+          <!-- Severity Filter Controls -->
+          <div class="filter-group" id="filterGroup">
+            <button type="button" class="filter-chip active" data-filter="all">All</button>
+            <button type="button" class="filter-chip" data-filter="critical">Critical</button>
+            <button type="button" class="filter-chip" data-filter="high">High</button>
+            <button type="button" class="filter-chip" data-filter="medium">Medium</button>
+          </div>
         </div>
 
         <div class="status-card" id="statusCard">
@@ -100,7 +114,10 @@
         <!-- Panel Footer Actions -->
         <div class="panel-footer-actions hidden" id="panelActions">
           <button type="button" class="btn btn-action" id="sanitizeBtn">
-            ✂️ Sanitize & Copy Redacted Code
+            ✂️ Copy Sanitized Code
+          </button>
+          <button type="button" class="btn btn-secondary" id="downloadSanitizedBtn">
+            📥 Download Sanitized
           </button>
           <button type="button" class="btn btn-outline" id="exportJsonBtn">
             💾 Export JSON
@@ -109,6 +126,30 @@
       </section>
     </div>
   </main>
+
+  <!-- Supported Signatures Modal -->
+  <div class="modal-overlay hidden" id="rulesModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <span class="modal-icon">🛡️</span>
+          <div>
+            <h2 class="modal-title">Supported Detection Signatures</h2>
+            <p class="modal-subtitle">18 high-fidelity patterns mirrored from CLI rules</p>
+          </div>
+        </div>
+        <button type="button" class="modal-close" id="closeRulesModal" aria-label="Close modal">&times;</button>
+      </div>
+
+      <div class="modal-search-row">
+        <input type="text" id="rulesSearchInput" class="modal-search" placeholder="Filter by provider, rule name, or severity...">
+      </div>
+
+      <div class="modal-body" id="rulesModalList">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+  </div>
 
   <footer class="footer">
     <div class="container footer-content">

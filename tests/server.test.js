@@ -21,6 +21,26 @@ test('startWebServer serves SecretScrub web playground on port', async () => {
     const cssRes = await fetch(`http://localhost:${testPort}/style.css`);
     assert.equal(cssRes.status, 200);
 
+    // Check GET /api/rules
+    const rulesRes = await fetch(`http://localhost:${testPort}/api/rules`);
+    assert.equal(rulesRes.status, 200);
+    const rulesData = await rulesRes.json();
+    assert.equal(rulesData.total, 18);
+    assert.ok(Array.isArray(rulesData.rules));
+    assert.ok(rulesData.rules.some((r) => r.id === 'aws-access-key-id'));
+
+    // Check POST /api/scan
+    const dummyKey = ['AKIA', '1234567890ABCDEF'].join('');
+    const scanRes = await fetch(`http://localhost:${testPort}/api/scan`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: `const key = "${dummyKey}";` }),
+    });
+    assert.equal(scanRes.status, 200);
+    const scanData = await scanRes.json();
+    assert.equal(scanData.totalLeaks, 1);
+    assert.equal(scanData.findings[0].ruleId, 'aws-access-key-id');
+
     // Check 404
     const notFoundRes = await fetch(`http://localhost:${testPort}/non-existent.xyz`);
     assert.equal(notFoundRes.status, 404);

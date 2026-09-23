@@ -22,7 +22,7 @@ test('detects AWS Access Key ID and Secret Access Key', () => {
 
 test('detects GitHub Personal Access Tokens (Classic and Fine-Grained)', () => {
   const dummyGhp = ['ghp', '123456789012345678901234567890123456'].join('_');
-  const dummyPat = ['github', 'pat', '11ABCD1234efgh5678ijkl_MNOP9876QRST5432UVWX1098YZAB7654CDEF3210GHIJ9876KLMN5432'].join('_');
+  const dummyPat = ['github', 'pat', '11ABCD1234ef995678ijkl_MNOP9876QRST5432UVWX1098YZAB7654CDEF3210GHIJ9876KLMN5432'].join('_');
   const content = `export const GITHUB_TOKEN = "${dummyGhp}";\nexport const FINE_GRAINED = "${dummyPat}";`;
   const findings = detectSecretsInContent(content, 'github.ts');
 
@@ -63,6 +63,54 @@ test('detects Database URLs with passwords', () => {
   const content = `DATABASE_URL="${dummyDb}"`;
   const findings = detectSecretsInContent(content, '.env');
   assert.ok(findings.some((f) => f.ruleId === 'database-connection-string'));
+});
+
+test('detects Google Cloud API keys', () => {
+  const dummyGoogle = ['AIza', 'SyD7K9xQ2mR4vL8tP1wZ6bN0jF3hG5sY8cW'].join('');
+  const content = `const googleKey = "${dummyGoogle}";`;
+  const findings = detectSecretsInContent(content, 'maps.js');
+  const googleFinding = findings.find((f) => f.ruleId === 'google-api-key');
+  assert.ok(googleFinding, 'Expected Google Cloud API key to be found');
+  assert.equal(googleFinding.provider, 'Google');
+  assert.equal(googleFinding.severity, SEVERITY.HIGH);
+});
+
+test('detects Slack bot tokens and incoming webhooks', () => {
+  const dummySlackBot = ['xoxb', '123456789012', '1234567890123', '9Qz8W2eR4tY6uI1oP3aS5dF7'].join('-');
+  const dummyWebhook = ['https:/', 'hooks.slack.com', 'services', 'T01234567', 'B01234567', '9Qz8W2eR4tY6uI1oP3aS5dF7'].join('/');
+  const content = `const bot = "${dummySlackBot}";\nconst hook = "${dummyWebhook}";`;
+  const findings = detectSecretsInContent(content, 'slack.js');
+
+  assert.ok(findings.some((f) => f.ruleId === 'slack-bot-token'), 'Expected Slack bot token');
+  assert.ok(findings.some((f) => f.ruleId === 'slack-webhook'), 'Expected Slack webhook');
+});
+
+test('detects Discord bot tokens and webhooks', () => {
+  const dummyDiscordBot = ['MTA1MjM0NTY3ODkwMTIzNDU2Nw', 'GF1234', '9Qz8W2eR4tY6uI1oP3aS5dF7gH9jK2l'].join('.');
+  const dummyDiscordHook = ['https:/', 'discord.com', 'api', 'webhooks', '123456789012345678', '9Qz8W2eR4tY6uI1oP3aS5dF7gH9jK2lZ4xV6cN8mB0vC2xZ4lK6jH8gF0dSa9Qz8W2eR'].join('/');
+  const content = `const token = "${dummyDiscordBot}";\nconst hook = "${dummyDiscordHook}";`;
+  const findings = detectSecretsInContent(content, 'discord.js');
+
+  assert.ok(findings.some((f) => f.ruleId === 'discord-bot-token'), 'Expected Discord bot token');
+  assert.ok(findings.some((f) => f.ruleId === 'discord-webhook'), 'Expected Discord webhook');
+});
+
+test('detects Telegram Bot API tokens', () => {
+  const dummyTelegram = ['123456789', 'AAGh9Qz8W2eR4tY6uI1oP3aS5dF7gH9jK2l'].join(':');
+  const content = `const botToken = "${dummyTelegram}";`;
+  const findings = detectSecretsInContent(content, 'telegram.js');
+  const teleFinding = findings.find((f) => f.ruleId === 'telegram-bot-token');
+  assert.ok(teleFinding, 'Expected Telegram bot token');
+  assert.equal(teleFinding.provider, 'Telegram');
+});
+
+test('detects JWT Tokens', () => {
+  const dummyJwt = ['eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9', 'eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIn0', 'SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'].join('.');
+  const content = `Authorization: Bearer ${dummyJwt}`;
+  const findings = detectSecretsInContent(content, 'auth.log');
+  const jwtFinding = findings.find((f) => f.ruleId === 'jwt-token');
+  assert.ok(jwtFinding, 'Expected JWT token finding');
+  assert.equal(jwtFinding.severity, SEVERITY.MEDIUM);
 });
 
 test('ignores documentation placeholders and false positives', () => {

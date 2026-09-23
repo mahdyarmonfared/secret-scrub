@@ -13,10 +13,11 @@ Leaking API keys or private keys into public GitHub repositories is an instant s
 
 ## ⚡ Key Capabilities
 
-- 🔍 **18+ High-Fidelity Signatures**: Pinpoint AWS IAM keys, OpenAI & Anthropic tokens, GitHub PATs, Stripe live credentials, Slack/Discord webhooks, Database connection strings, and Private Key blocks (`RSA`, `OPENSSH`, `EC`).
+- 🔍 **18+ High-Fidelity Signatures**: Pinpoint AWS IAM keys, OpenAI & Anthropic tokens, GitHub PATs, Stripe live credentials, Google Cloud keys, Slack/Discord bot tokens and webhooks, Telegram tokens, Database connection strings, and Private Key blocks (`RSA`, `OPENSSH`, `EC`).
 - 🎲 **Shannon Entropy Analysis**: Heuristic evaluation ($H(X) \ge 4.2$) flags unstructured high-entropy strings and secret assignments even when specific regex patterns don't match.
 - 🪝 **One-Click Pre-Commit Hook**: Install a native `.git/hooks/pre-commit` guard with a single command (`secret-scrub hook install`) to reject leaks at `git commit` time.
-- 🌐 **Interactive Web Security Playground (`--web`)**: Drag-and-drop file inspection and live paste testing with real-time entropy calculation, sample leak generator, and zero data transmission (100% client-side).
+- 🌐 **Interactive Web Security Playground (`--web` or port 3004)**: Client-side secret inspector with file picker (`Browse File`), drag & drop, interactive 18+ Signatures Explorer, severity filter chips (Critical / High / Medium / Low), safe unmasking toggles, sanitized file downloads, and zero data transmission (100% client-side privacy).
+- 🔌 **Built-in REST API**: Lightweight endpoints `GET /api/rules` and `POST /api/scan` for automated security pipelines and local integrations.
 - ⚡ **Lightning Fast Git Staged Mode**: `--staged` inspects only staged diff files in milliseconds without crawling irrelevant directories.
 - 🎭 **Zero-Leak Redaction**: Discovered secrets are masked in reports (`AKIA12••••••••CDEF`), preventing terminal logs from becoming leakage vectors.
 - 🤖 **CI/CD Native**: Standardized exit codes (`0` clean, `1` secrets detected) and machine-readable `--json` output for automated GitHub Actions and GitLab CI gates.

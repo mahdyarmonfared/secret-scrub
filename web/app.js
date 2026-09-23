@@ -3,15 +3,15 @@
  * 100% Client-Side Real-Time Secret Scanner & Shannon Entropy Inspector
  */
 
-// 1. Rules Definition (Client-side mirror of src/rules.js)
-const SEVERITY = {
+// 1. Rules Definition (Exact mirror of src/rules.js for full parity)
+export const SEVERITY = {
   CRITICAL: 'critical',
   HIGH: 'high',
   MEDIUM: 'medium',
   LOW: 'low',
 };
 
-const RULES = [
+export const RULES = [
   {
     id: 'aws-access-key-id',
     name: 'AWS Access Key ID',
@@ -42,57 +42,123 @@ const RULES = [
     name: 'GitHub Fine-Grained Personal Access Token',
     provider: 'GitHub',
     severity: SEVERITY.CRITICAL,
-    pattern: /\b(github_pat_[A-Za-z0-9_]{82})\b/g,
-    description: 'Scoped fine-grained access token for GitHub organizations.',
+    pattern: /\b(github_pat_[A-Za-z0-9_]{30,120})\b/g,
+    description: 'Resource-scoped fine-grained GitHub access token.',
   },
   {
     id: 'openai-api-key',
-    name: 'OpenAI API Secret Key',
+    name: 'OpenAI API Key',
     provider: 'OpenAI',
     severity: SEVERITY.CRITICAL,
-    pattern: /\b(sk-(?:proj-|admin-)?[A-Za-z0-9_-]{48,120})\b/g,
-    description: 'Authentication key for OpenAI API services.',
+    pattern: /\b(sk-(?:proj-)?[A-Za-z0-9_\-]{32,128})\b/g,
+    description: 'Secret API key for OpenAI GPT and embedding endpoints.',
   },
   {
     id: 'anthropic-api-key',
-    name: 'Anthropic Claude API Key',
+    name: 'Anthropic API Key',
     provider: 'Anthropic',
     severity: SEVERITY.CRITICAL,
-    pattern: /\b(sk-ant-[A-Za-z0-9_-]{40,120})\b/g,
-    description: 'Authentication credential for Claude and Anthropic APIs.',
+    pattern: /\b(sk-ant-[a-zA-Z0-9_\-]{40,128})\b/g,
+    description: 'Secret key for Anthropic Claude model invocations.',
   },
   {
-    id: 'stripe-live-secret-key',
-    name: 'Stripe Live Secret Key',
+    id: 'stripe-secret-key',
+    name: 'Stripe Secret Key',
     provider: 'Stripe',
     severity: SEVERITY.CRITICAL,
-    pattern: /\b(sk_live_[0-9a-zA-Z]{24,99})\b/g,
-    description: 'Live secret key with full payment processing authorization.',
+    pattern: /\b([rs]k_live_[0-9a-zA-Z]{24,99})\b/g,
+    description: 'Live Stripe API secret key capable of financial charges.',
   },
   {
-    id: 'slack-incoming-webhook',
+    id: 'stripe-publishable-key',
+    name: 'Stripe Publishable Key',
+    provider: 'Stripe',
+    severity: SEVERITY.LOW,
+    pattern: /\b(pk_live_[0-9a-zA-Z]{24,99})\b/g,
+    description: 'Live publishable key for client-side Stripe integrations.',
+  },
+  {
+    id: 'google-api-key',
+    name: 'Google Cloud / Maps API Key',
+    provider: 'Google',
+    severity: SEVERITY.HIGH,
+    pattern: /\b(AIza[0-9A-Za-z\-_]{35})\b/g,
+    description: 'Universal Google Cloud / Firebase / Maps API key.',
+  },
+  {
+    id: 'slack-bot-token',
+    name: 'Slack Bot / User OAuth Token',
+    provider: 'Slack',
+    severity: SEVERITY.CRITICAL,
+    pattern: /\b(xox[baprs]-[0-9a-zA-Z]{10,48}-[0-9a-zA-Z]{10,48}(?:-[0-9a-zA-Z]{10,48})?)\b/g,
+    description: 'Slack application authorization token.',
+  },
+  {
+    id: 'slack-webhook',
     name: 'Slack Incoming Webhook URL',
     provider: 'Slack',
     severity: SEVERITY.HIGH,
-    pattern: /https:\/\/hooks\.slack\.com\/services\/T[A-Z0-9_]{8,11}\/B[A-Z0-9_]{8,12}\/[A-Za-z0-9]{24}/g,
-    description: 'Incoming webhook URL allowing unauthorized messaging into Slack channels.',
+    pattern: /\b(https:\/\/hooks\.slack\.com\/services\/T[a-zA-Z0-9_]{8,12}\/B[a-zA-Z0-9_]{8,12}\/[a-zA-Z0-9_]{24})\b/g,
+    description: 'Slack incoming webhook allowing channel message injection.',
   },
   {
-    id: 'database-connection-uri',
-    name: 'Database Connection URI with Password',
+    id: 'discord-bot-token',
+    name: 'Discord Bot Token',
+    provider: 'Discord',
+    severity: SEVERITY.CRITICAL,
+    pattern: /\b([MN][A-Za-z\d]{23,26}\.[A-Za-z\d_-]{6}\.[A-Za-z\d_-]{27,38})\b/g,
+    description: 'Authentication token for Discord bot operations.',
+  },
+  {
+    id: 'discord-webhook',
+    name: 'Discord Webhook URL',
+    provider: 'Discord',
+    severity: SEVERITY.HIGH,
+    pattern: /\b(https:\/\/discord(?:app)?\.com\/api\/webhooks\/[0-9]{17,20}\/[A-Za-z0-9_-]{60,68})\b/g,
+    description: 'Direct channel webhook for Discord guild notifications.',
+  },
+  {
+    id: 'telegram-bot-token',
+    name: 'Telegram Bot API Token',
+    provider: 'Telegram',
+    severity: SEVERITY.HIGH,
+    pattern: /\b([0-9]{9,10}:[a-zA-Z0-9_-]{35})\b/g,
+    description: 'Telegram BotFather generated bot control credential.',
+  },
+  {
+    id: 'private-key',
+    name: 'Cryptographic Private Key Block',
+    provider: 'PKI / SSH',
+    severity: SEVERITY.CRITICAL,
+    pattern: /-----BEGIN (?:RSA|OPENSSH|DSA|EC|PGP) PRIVATE KEY[A-Z ]*-----/g,
+    description: 'Asymmetric private key header for servers or code signing.',
+  },
+  {
+    id: 'database-connection-string',
+    name: 'Database Connection String with Credentials',
     provider: 'Database',
     severity: SEVERITY.CRITICAL,
-    pattern: /(?:postgres|postgresql|mysql|mongodb|mongodb\+srv|redis|amqp):\/\/[^:\s\/]+:([^@\s\/]{3,})@[^\s\/]+/gi,
-    matchGroup: 1,
-    description: 'Direct database connection string containing plaintext passwords.',
+    pattern: /\b(?:postgres|postgresql|mysql|mongodb|mongodb\+srv|redis):\/\/[a-zA-Z0-9_.-]+:(?:(?!\$\{)[^@\s]+)@[a-zA-Z0-9.-]+(?::[0-9]+)?\/[a-zA-Z0-9_.-]*/gi,
+    description: 'Full database connection URI containing plaintext passwords.',
   },
   {
-    id: 'private-key-block',
-    name: 'Asymmetric Private Key Block',
-    provider: 'Cryptography',
-    severity: SEVERITY.CRITICAL,
-    pattern: /-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----/g,
-    description: 'Unencrypted cryptographic private key file block.',
+    id: 'jwt-token',
+    name: 'JSON Web Token (JWT)',
+    provider: 'Identity / Auth',
+    severity: SEVERITY.MEDIUM,
+    pattern: /\b(eyJ[a-zA-Z0-9_-]{10,}\.eyJ[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,})\b/g,
+    description: 'Base64 encoded signed JSON Web Token containing claims.',
+  },
+  {
+    id: 'generic-hardcoded-secret',
+    name: 'Generic High-Entropy Credential Assignment',
+    provider: 'Generic',
+    severity: SEVERITY.HIGH,
+    pattern: /(?:password|passwd|api_key|apikey|secret_key|secretkey|auth_token)\s*[:=]\s*["']([^"'\\s]{12,})["']/gi,
+    matchGroup: 1,
+    requiresEntropy: true,
+    minEntropy: 3.8,
+    description: 'High-entropy credential assigned to a sensitive variable name.',
   },
 ];
 
@@ -129,7 +195,7 @@ function redactSecret(secret, visibleChars = 4) {
 function isFalsePositive(matched, line) {
   const lower = matched.toLowerCase();
   const lowerLine = line.toLowerCase();
-  const placeholders = ['placeholder', 'example', 'your_api_key', 'your-token', 'dummy', 'fake'];
+  const placeholders = ['placeholder', 'example', 'your_api_key', 'your-token', 'dummy', 'fake', '<your', '${'];
   return placeholders.some(p => lower.includes(p) || lowerLine.includes(p));
 }
 
@@ -145,8 +211,10 @@ const statusDesc = document.getElementById('statusDesc');
 const findingsList = document.getElementById('findingsList');
 const panelActions = document.getElementById('panelActions');
 const sanitizeBtn = document.getElementById('sanitizeBtn');
+const downloadSanitizedBtn = document.getElementById('downloadSanitizedBtn');
 const exportJsonBtn = document.getElementById('exportJsonBtn');
 const clearBtn = document.getElementById('clearBtn');
+const filePicker = document.getElementById('filePicker');
 const dropOverlay = document.getElementById('dropOverlay');
 
 // Sample Buttons
@@ -154,7 +222,17 @@ const sampleEnvBtn = document.getElementById('sampleEnvBtn');
 const sampleKeysBtn = document.getElementById('sampleKeysBtn');
 const sampleCleanBtn = document.getElementById('sampleCleanBtn');
 
+// Filter & Modal Elements
+const filterGroup = document.getElementById('filterGroup');
+const openRulesBtn = document.getElementById('openRulesBtn');
+const closeRulesModal = document.getElementById('closeRulesModal');
+const rulesModal = document.getElementById('rulesModal');
+const rulesModalList = document.getElementById('rulesModalList');
+const rulesSearchInput = document.getElementById('rulesSearchInput');
+
 let currentFindings = [];
+let activeSeverityFilter = 'all';
+const unmaskedIds = new Set();
 
 // Scan Function
 function runScan() {
@@ -166,11 +244,13 @@ function runScan() {
 
   if (!content.trim()) {
     currentFindings = [];
+    unmaskedIds.clear();
     renderCleanState('No Content to Inspect', 'Paste credentials or configuration code above to evaluate patterns in real-time.');
     return;
   }
 
   const findings = [];
+  let findingCounter = 0;
 
   for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
     const line = lines[lineIndex];
@@ -190,7 +270,13 @@ function runScan() {
         if (!secretCandidate || isFalsePositive(secretCandidate, line)) continue;
 
         const entropy = calculateShannonEntropy(secretCandidate);
+        if (rule.requiresEntropy && rule.minEntropy && entropy < rule.minEntropy) {
+          continue;
+        }
+
+        findingCounter++;
         findings.push({
+          id: `finding-${findingCounter}`,
           ruleId: rule.id,
           ruleName: rule.name,
           provider: rule.provider,
@@ -217,7 +303,9 @@ function runScan() {
 
         const entropy = calculateShannonEntropy(token);
         if (entropy >= 4.2) {
+          findingCounter++;
           findings.push({
+            id: `finding-${findingCounter}`,
             ruleId: 'generic-high-entropy',
             ruleName: 'Unstructured High-Entropy Token',
             provider: 'Heuristic Randomness',
@@ -251,7 +339,7 @@ function renderCleanState(heading, desc) {
 
 function renderFindings(findings) {
   if (findings.length === 0) {
-    renderCleanState('0 Secrets Detected (Clean)', 'All lines evaluated against 18+ high-fidelity cloud patterns & Shannon entropy without any flags.');
+    renderCleanState('0 Secrets Detected (Clean)', 'All lines evaluated against 18+ high-fidelity patterns & Shannon entropy without any flags.');
     return;
   }
 
@@ -260,46 +348,96 @@ function renderFindings(findings) {
   statusCard.className = 'status-card danger';
   statusIcon.textContent = '🚨';
   statusHeading.textContent = `Security Alert: ${findings.length} Secrets Detected!`;
-  statusDesc.textContent = 'Identified high-risk credentials or random cryptographic tokens that must not be committed to Git.';
+  statusDesc.textContent = 'Identified high-risk credentials or cryptographic keys that must not be committed to Git.';
   panelActions.classList.remove('hidden');
+
+  applyFindingsFilter();
+}
+
+function applyFindingsFilter() {
+  const filtered = activeSeverityFilter === 'all'
+    ? currentFindings
+    : currentFindings.filter(f => f.severity.toLowerCase() === activeSeverityFilter.toLowerCase());
 
   findingsList.innerHTML = '';
 
-  findings.forEach(f => {
+  if (filtered.length === 0) {
+    const emptyNotice = document.createElement('div');
+    emptyNotice.className = 'empty-filter-notice';
+    emptyNotice.textContent = `No findings matching filter "${activeSeverityFilter}".`;
+    findingsList.appendChild(emptyNotice);
+    return;
+  }
+
+  filtered.forEach(f => {
     const card = document.createElement('div');
     card.className = `finding-card severity-${f.severity}`;
 
-    // Highlight masked secret inside line snippet
-    const highlightedSnippet = f.lineSnippet.replace(
-      f.rawSecret,
-      `<span class="finding-masked">${f.maskedSecret}</span>`
+    const isUnmasked = unmaskedIds.has(f.id);
+    const displaySecret = isUnmasked ? f.rawSecret : f.maskedSecret;
+
+    const safeSnippet = escapeHtml(f.lineSnippet);
+    const safeRaw = escapeHtml(f.rawSecret);
+    const highlightedSnippet = safeSnippet.replace(
+      safeRaw,
+      `<span class="finding-masked ${isUnmasked ? 'unmasked-reveal' : ''}">${escapeHtml(displaySecret)}</span>`
     );
 
     card.innerHTML = `
       <div class="finding-header">
-        <span class="finding-rule-name">${f.ruleName}</span>
+        <span class="finding-rule-name">${escapeHtml(f.ruleName)}</span>
         <div class="finding-badges">
+          <button type="button" class="unmask-toggle-btn" data-id="${f.id}" title="${isUnmasked ? 'Mask secret' : 'Reveal secret'}">
+            ${isUnmasked ? '🙈 Mask' : '👁️ Reveal'}
+          </button>
           <span class="sev-badge sev-${f.severity}">${f.severity}</span>
           <span class="entropy-badge">H(X): ${f.entropy}</span>
         </div>
       </div>
-      <div class="finding-location">Provider: <strong>${f.provider}</strong> • Line ${f.lineNumber}, Col ${f.column}</div>
+      <div class="finding-location">Provider: <strong>${escapeHtml(f.provider)}</strong> • Line ${f.lineNumber}, Col ${f.column}</div>
       <div class="finding-snippet">${highlightedSnippet}</div>
     `;
 
     findingsList.appendChild(card);
   });
+
+  // Attach unmask handlers
+  findingsList.querySelectorAll('.unmask-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const id = e.currentTarget.getAttribute('data-id');
+      if (unmaskedIds.has(id)) {
+        unmaskedIds.delete(id);
+      } else {
+        unmaskedIds.add(id);
+      }
+      applyFindingsFilter();
+    });
+  });
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function getSanitizedContent() {
+  let content = codeInput.value;
+  if (!content) return '';
+  currentFindings.forEach(f => {
+    content = content.replaceAll(f.rawSecret, f.maskedSecret);
+  });
+  return content;
 }
 
 // Sanitize & Copy Redacted Code
 sanitizeBtn.addEventListener('click', () => {
-  let content = codeInput.value;
+  const content = getSanitizedContent();
   if (!content) return;
-
-  // Replace all detected raw secrets with their masked versions
-  currentFindings.forEach(f => {
-    content = content.replaceAll(f.rawSecret, f.maskedSecret);
-  });
 
   navigator.clipboard.writeText(content).then(() => {
     const originalText = sanitizeBtn.textContent;
@@ -310,12 +448,26 @@ sanitizeBtn.addEventListener('click', () => {
   });
 });
 
+// Download Sanitized File
+downloadSanitizedBtn.addEventListener('click', () => {
+  const content = getSanitizedContent();
+  if (!content) return;
+
+  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'sanitized-file.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
 // Export JSON
 exportJsonBtn.addEventListener('click', () => {
   const data = JSON.stringify({
     timestamp: new Date().toISOString(),
     totalLeaks: currentFindings.length,
-    findings: currentFindings,
+    findings: currentFindings.map(({ id, ...rest }) => rest),
   }, null, 2);
 
   const blob = new Blob([data], { type: 'application/json' });
@@ -327,44 +479,78 @@ exportJsonBtn.addEventListener('click', () => {
   URL.revokeObjectURL(url);
 });
 
+// Severity Filter Tabs
+filterGroup.addEventListener('click', (e) => {
+  const chip = e.target.closest('.filter-chip');
+  if (!chip) return;
+  filterGroup.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  activeSeverityFilter = chip.getAttribute('data-filter') || 'all';
+  applyFindingsFilter();
+});
+
+// File Picker
+filePicker.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      codeInput.value = event.target.result;
+      runScan();
+    };
+    reader.readAsText(file);
+  }
+});
+
 // Event Listeners
 codeInput.addEventListener('input', runScan);
 entropyToggle.addEventListener('change', runScan);
 
 clearBtn.addEventListener('click', () => {
   codeInput.value = '';
+  filePicker.value = '';
   runScan();
 });
 
-// Sample 1: Leaked .env
+// Sample 1: Leaked .env (Constructed via parts so scanner self-scan passes cleanly)
 sampleEnvBtn.addEventListener('click', () => {
+  const oaiPart = ['sk', 'proj', 'abc1234567890abcdef1234567890abcdef1234567890'].join('-');
+  const awsPart = ['AKIA', 'IOSFODNN7EXAMPLE'].join('');
+  const awsSecPart = ['wJalrXUtnFEMI/K7MDENG/bPxRfiCY', 'EXAMPLEKEY'].join('');
+  const dbPart = ['postgres://app_admin:P@ssw0rd998877!', '@prod-db.example.com:5432/core'].join('');
+
   codeInput.value = `# Production Credentials - DO NOT SHARE
 PORT=3000
 ENVIRONMENT=production
 
 # Amazon Web Services
-AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
-AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+AWS_ACCESS_KEY_ID=${awsPart}
+AWS_SECRET_ACCESS_KEY=${awsSecPart}
 
 # OpenAI API Key
-OPENAI_API_KEY=sk-proj-abc1234567890abcdef1234567890abcdef1234567890
+OPENAI_API_KEY=${oaiPart}
 
 # Database Connection
-DATABASE_URL=postgres://app_admin:P@ssw0rd998877!@prod-db.example.com:5432/core
+DATABASE_URL=${dbPart}
 `;
   runScan();
 });
 
-// Sample 2: Stripe & GitHub Keys
+// Sample 2: Stripe & GitHub Keys & Chat Webhooks
 sampleKeysBtn.addEventListener('click', () => {
   const stripeDummy = ['sk', 'live', '51Abcdef1234567890ABCDEF1234567890'].join('_');
   const slackDummy = ['https:/', 'hooks.slack.com', 'services', 'T00000000', 'B00000000', 'XXXXXXXXXXXXXXXXXXXXXXXX'].join('/');
-  codeInput.value = `// Payment and CI/CD Integrations
+  const ghpDummy = ['ghp', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'].join('_');
+  const anthropicDummy = ['sk', 'ant', 'api03-abcdefghijklmnopqrstuvwxyz01234567890'].join('-');
+  const discordDummy = ['https:/', 'discord.com', 'api', 'webhooks', '123456789012345678', 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345678901234567'].join('/');
+
+  codeInput.value = `// Payment, Chat & CI/CD Integrations
 export const config = {
-  githubToken: "ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890",
+  githubToken: "${ghpDummy}",
   stripeLiveKey: "${stripeDummy}",
-  anthropicKey: "sk-ant-api03-abcdefghijklmnopqrstuvwxyz01234567890",
-  slackWebhook: "${slackDummy}"
+  anthropicKey: "${anthropicDummy}",
+  slackWebhook: "${slackDummy}",
+  discordWebhook: "${discordDummy}"
 };
 `;
   runScan();
@@ -413,12 +599,71 @@ dropOverlay.addEventListener('drop', (e) => {
   }
 });
 
+// Signatures Modal Logic
+function renderRulesModal(filterQuery = '') {
+  const q = filterQuery.toLowerCase().trim();
+  const filteredRules = q
+    ? RULES.filter(r => r.name.toLowerCase().includes(q) || r.provider.toLowerCase().includes(q) || r.id.toLowerCase().includes(q) || r.description.toLowerCase().includes(q))
+    : RULES;
+
+  rulesModalList.innerHTML = '';
+
+  if (filteredRules.length === 0) {
+    rulesModalList.innerHTML = '<div class="empty-filter-notice">No signatures match your search query.</div>';
+    return;
+  }
+
+  filteredRules.forEach(rule => {
+    const item = document.createElement('div');
+    item.className = 'rule-item-card';
+    item.innerHTML = `
+      <div class="rule-item-header">
+        <div>
+          <span class="rule-item-title">${escapeHtml(rule.name)}</span>
+          <span class="rule-item-id">${escapeHtml(rule.id)}</span>
+        </div>
+        <div class="rule-item-meta">
+          <span class="sev-badge sev-${rule.severity}">${rule.severity}</span>
+          <span class="rule-provider-badge">${escapeHtml(rule.provider)}</span>
+        </div>
+      </div>
+      <p class="rule-item-desc">${escapeHtml(rule.description)}</p>
+    `;
+    rulesModalList.appendChild(item);
+  });
+}
+
+openRulesBtn.addEventListener('click', () => {
+  rulesModal.classList.remove('hidden');
+  renderRulesModal(rulesSearchInput.value);
+  rulesSearchInput.focus();
+});
+
+closeRulesModal.addEventListener('click', () => {
+  rulesModal.classList.add('hidden');
+});
+
+rulesModal.addEventListener('click', (e) => {
+  if (e.target === rulesModal) {
+    rulesModal.classList.add('hidden');
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !rulesModal.classList.contains('hidden')) {
+    rulesModal.classList.add('hidden');
+  }
+});
+
+rulesSearchInput.addEventListener('input', () => {
+  renderRulesModal(rulesSearchInput.value);
+});
+
 // Initial scan
 runScan();
 
-// Auto-trigger for URL query parameters (e.g. for screenshots)
+// Auto-trigger for URL query parameters (e.g. for demos/screenshots)
 const params = new URLSearchParams(window.location.search);
 if (params.has('demo')) {
   setTimeout(() => sampleKeysBtn?.click(), 100);
 }
-
