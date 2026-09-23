@@ -7,10 +7,10 @@ const args = process.argv.slice(2);
 const webIdx = args.findIndex((a) => a === '--web' || a.startsWith('--web='));
 
 if (webIdx !== -1) {
-  let port = 3000;
+  let port = 3004;
   const webVal = args[webIdx];
   if (webVal.includes('=')) {
-    port = parseInt(webVal.split('=')[1], 10) || 3000;
+    port = parseInt(webVal.split('=')[1], 10) || 3004;
   } else if (args[webIdx + 1] && /^\d+$/.test(args[webIdx + 1])) {
     port = parseInt(args[webIdx + 1], 10);
   }

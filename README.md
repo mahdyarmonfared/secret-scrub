@@ -86,7 +86,7 @@ secret-scrub scan --staged
 # Install native Git pre-commit hook in your project
 secret-scrub hook install
 
-# Launch client-side browser playground locally
+# Launch client-side browser playground locally (default: http://localhost:3004)
 secret-scrub --web
 ```
 

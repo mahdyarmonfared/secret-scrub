@@ -166,9 +166,9 @@ export function createCli() {
   program
     .command('web [port]')
     .description('Launch the browser-based SecretScrub Security Playground locally')
-    .option('-p, --port <number>', 'Server listening port', (v) => parseInt(v, 10), 3000)
+    .option('-p, --port <number>', 'Server listening port', (v) => parseInt(v, 10), 3004)
     .action(async (portArg, options) => {
-      const port = portArg ? parseInt(portArg, 10) : (options.port || 3000);
+      const port = portArg ? parseInt(portArg, 10) : (options.port || 3004);
       await startWebServer({ port });
     });
 
